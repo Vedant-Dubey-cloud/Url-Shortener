@@ -1,0 +1,47 @@
+version: '3.9'
+
+services:
+
+  mysql:
+    image: mysql:8.0
+    container_name: mysql-db
+
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: url_shortener
+
+    ports:
+      - "3307:3306"
+
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  redis:
+    image: redis:7
+    container_name: redis-cache
+
+    ports:
+      - "6379:6379"
+
+  app:
+    build: .
+
+    container_name: url-shortener
+
+    depends_on:
+      - mysql
+      - redis
+
+    ports:
+      - "8080:8080"
+
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/url_shortener
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+
+      SPRING_REDIS_HOST: redis
+      SPRING_REDIS_PORT: 6379
+
+volumes:
+  mysql_data:
